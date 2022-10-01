@@ -26,7 +26,7 @@
 #include <vector>
 #include <assert.h>
 #include <stdlib.h>
-
+#include <typeinfo>
 #include <sensor_msgs/point_cloud_conversion.h>
 
 #include "termcolor.hpp"
@@ -76,7 +76,10 @@ void JPS_Manager::setDroneRadius(double drone_radius)
 {
   drone_radius_ = drone_radius;
 }
-
+/////////////////////////////////////////////////////////////////////
+std::vector<vec_E<Polyhedron<3>> > incremental_polys;
+int counter_incre {0};
+////////////////////////////////////////////////////////////////////
 void JPS_Manager::cvxEllipsoidDecomp(vec_Vecf<3>& path, int type_space, std::vector<LinearConstraint3D>& l_constraints,
                                      vec_E<Polyhedron<3>>& poly_out)
 {
@@ -109,7 +112,29 @@ void JPS_Manager::cvxEllipsoidDecomp(vec_Vecf<3>& path, int type_space, std::vec
   auto polys = ellip_decomp_util_.get_polyhedrons();
 
   l_constraints.clear();
+//////////////////////////////////////////do it here///////////////////////////////////////////////////////////
+  
+  counter_incre += 1;
+  incremental_polys.push_back(polys);
+/*   std::cout << "Type of polys : " << typeid(polys).name() << std::endl;
+  std::cout << "Type of incremental_polys : " << typeid(incremental_polys).name() << std::endl;
+  std::cout << "Type of ellip_decomp_util_ : " << typeid(ellip_decomp_util_).name() << std::endl;
+  std::cout << "Type of last element in incremental_polys: " << typeid(incremental_polys[incremental_polys.size()-1].get_polyhedrons()).name() << std::endl; */
 
+  
+  if (counter_incre > 2)
+  {
+    vec_E<Polyhedron<3>> tmp = incremental_polys[incremental_polys.size()-2];
+    std::copy(tmp.begin(), tmp.end(), std::back_inserter(polys));
+    //polys.push_back(tmp); 
+    //polys.push_back(incremental_polys[incremental_polys.size()-3].get_polyhedrons());
+  } 
+  /* else
+  {
+    incremental_polys.push_back(ellip_decomp_util_);
+  } */
+  std::cout<<std::endl<<"The total incremental polys "<<incremental_polys.size()<<std::endl<<std::endl;
+  ////////////////////////////////////////////////////////////////////////////////////////////////////////////////
   for (size_t i = 0; i < path.size() - 1; i++)
   {
     const auto pt_inside = (path[i] + path[i + 1]) / 2;

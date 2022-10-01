@@ -126,6 +126,8 @@ inline vec_Vec2f cal_vertices(const Polyhedron2D &poly) {
   return vts_inside;
 }
 
+
+
 /// Find extreme points of Polyhedron3D
 inline vec_E<vec_Vec3f> cal_vertices(const Polyhedron3D &poly) {
   vec_E<vec_Vec3f> bds;

@@ -16,6 +16,7 @@ struct Ellipsoid
   Ellipsoid()
   {
   }
+  // d_ is ellipse center and C_ is distortion of ellipse
   Ellipsoid(const Matf<Dim, Dim> &C, const Vecf<Dim> &d) : C_(C), d_(d)
   {
   }
@@ -61,13 +62,13 @@ struct Ellipsoid
     return pt;
   }
 
-  /// Find the closest hyperplane from the closest point
+  /// Find the hyperplane at the closest point
   Hyperplane<Dim> closest_hyperplane(const vec_Vecf<Dim> &O) const
   {
     const auto closest_pt = closest_point(O);
     // std::cout << "closest_pt=" << closest_pt << std::endl;
     // std::cout << "d_=" << d_ << std::endl;
-    const auto n = C_.inverse() * C_.inverse().transpose() * (closest_pt - d_);
+    const auto n = C_.inverse() * C_.inverse().transpose() * (closest_pt - d_); //projection into column space of C.inverse since hyperplace is orthogonal to ellipse plane
     // std::cout << "Devolviendo n" << n << std::endl;
     return Hyperplane<Dim>(closest_pt, n.normalized());
   }
@@ -81,7 +82,7 @@ struct Ellipsoid
     for (decimal_t yaw = 0; yaw < M_PI * 2; yaw += dyaw)
     {
       Vecf<Dim> pt;
-      pt << cos(yaw), sin(yaw);
+      pt << cos(yaw), sin(yaw);    //coordinates of point in elllipse local frame
       pts.push_back(C_ * pt + d_);
     }
     return pts;
