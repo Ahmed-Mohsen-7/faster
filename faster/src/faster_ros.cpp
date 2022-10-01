@@ -181,6 +181,7 @@ FasterRos::FasterRos(ros::NodeHandle nh) : nh_(nh)
   clearMarkerActualTraj();
 }
 
+// this function replans and publishes trajectories
 void FasterRos::replanCB(const ros::TimerEvent& e)
 {
   if (ros::ok())
@@ -204,6 +205,7 @@ void FasterRos::replanCB(const ros::TimerEvent& e)
   }
 }
 
+// this function publishes polyhydron array [safe or whole]
 void FasterRos::publishPoly(const vec_E<Polyhedron<3>>& poly, int type)
 {
   // std::cout << "Going to publish= " << (poly[0].hyperplanes())[0].n_ << std::endl;
@@ -221,6 +223,7 @@ void FasterRos::publishPoly(const vec_E<Polyhedron<3>>& poly, int type)
   }
 }
 
+//this function updates state in terms of position and velocity
 void FasterRos::stateCB(const snapstack_msgs::State& msg)
 {
   state state_tmp;
@@ -233,6 +236,7 @@ void FasterRos::stateCB(const snapstack_msgs::State& msg)
   faster_ptr_->updateState(state_tmp);
 }
 
+//this function activates when the goal is set
 void FasterRos::modeCB(const faster_msgs::Mode& msg)
 {
   // faster_ptr_->changeMode(msg.mode);
@@ -258,6 +262,8 @@ void FasterRos::modeCB(const faster_msgs::Mode& msg)
   }
 }
 
+//this function takes a goal and convert it from eigen to rosvector
+//it publishes the goal pose and velocity
 void FasterRos::pubCB(const ros::TimerEvent& e)
 {
   state next_goal;
@@ -288,6 +294,7 @@ void FasterRos::pubCB(const ros::TimerEvent& e)
     pub_setpoint_.publish(setpoint_);
   }
 }
+
 
 void FasterRos::clearJPSPathVisualization(int i)
 {
@@ -356,6 +363,7 @@ void FasterRos::publishJPSPath(vec_Vecf<3>& path, int i)
   }
 }
 
+//this function takes a trajectory and publishes it depending on the type
 void FasterRos::pubTraj(const std::vector<state>& data, int type)
 {
   // Trajectory
@@ -477,6 +485,8 @@ void FasterRos::clearMarkerColoredTraj()
 }
 
 // Occupied CB
+
+//this function updates the map using the known obstacles map and the unkown map
 void FasterRos::mapCB(const sensor_msgs::PointCloud2::ConstPtr& pcl2ptr_map_ros,
                       const sensor_msgs::PointCloud2::ConstPtr& pcl2ptr_unk_ros)
 {

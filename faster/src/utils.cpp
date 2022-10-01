@@ -712,7 +712,7 @@ void reduceJPSbyDistance(vec_Vecf<3>& path, double d)
 // that 2 points and the sphere
 Eigen::Vector3d getIntersectionWithSphere(Eigen::Vector3d& A, Eigen::Vector3d& B, double r, Eigen::Vector3d& center)
 {
-  // http://www.ambrsoft.com/TrigoCalc/Sphere/SpherLineIntersection_.htm
+  // http://www.ambrsoft.com/TrigoCalc/Sphere/SpherLineIntersection_.html
   /*  std::cout << "Center=" << std::endl << center << std::endl;
     std::cout << "Radius=" << std::endl << r << std::endl;
     std::cout << "First Point=" << std::endl << A << std::endl;

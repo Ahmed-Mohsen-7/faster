@@ -24,6 +24,7 @@ using namespace termcolor;
 // typedef ROSWallTimer MyTimer;
 typedef Timer MyTimer;
 
+//set up intial parameters
 Faster::Faster(parameters par) : par_(par)
 {
   drone_status_ == DroneStatus::YAWING;
@@ -77,6 +78,8 @@ Faster::Faster(parameters par) : par_(par)
   resetInitialization();
 }
 
+//LOOK AGAIN
+//function create vertexes along the path
 void Faster::createMoreVertexes(vec_Vecf<3>& path, double d)
 {
   for (int j = 0; j < path.size() - 1; j++)
@@ -89,13 +92,14 @@ void Faster::createMoreVertexes(vec_Vecf<3>& path, double d)
     {
       for (int i = 0; i < vertexes_to_add; i++)
       {
-        path.insert(path.begin() + j + 1, path[j] + v * d);
+        path.insert(path.begin() + j + 1, path[j] + v * d); //
         j = j + 1;
       }
     }
   }
 }
 
+//thid function update known and unkowns jps
 void Faster::updateMap(pcl::PointCloud<pcl::PointXYZ>::Ptr pclptr_map, pcl::PointCloud<pcl::PointXYZ>::Ptr pclptr_unk)
 {
   mtx_map.lock();
@@ -136,6 +140,7 @@ void Faster::updateMap(pcl::PointCloud<pcl::PointXYZ>::Ptr pclptr_map, pcl::Poin
   mtx_unk.unlock();
 }
 
+//project G_term to be G point
 void Faster::setTerminalGoal(state& term_goal)
 {
   mtx_G_term.lock();
@@ -170,6 +175,8 @@ void Faster::getState(state& data)
   mtx_state.unlock();
 }
 
+//intially put value of R as H then calculate the first point of collision
+//then put R = the index of that point
 int Faster::findIndexR(int indexH)
 {
   // Ignore z to obtain this heuristics (if not it can become very conservative)
@@ -215,17 +222,18 @@ int Faster::findIndexR(int indexH)
   return indexR;
 }
 
+//find index H 
 int Faster::findIndexH(bool& needToComputeSafePath)
 {
   int n = 1;  // find one neighbour
-  std::vector<int> pointIdxNKNSearch(n);
+  std::vector<int> pointIdxNKNSearch(n);   //vector of size n
   std::vector<float> pointNKNSquaredDistance(n);
 
   needToComputeSafePath = false;
 
   mtx_unk.lock();
   mtx_X_U_temp.lock();
-  int indexH = sg_whole_.X_temp_.size() - 1;
+  int indexH = sg_whole_.X_temp_.size() - 1; //initial value for H = last point in whole trajectory
 
   for (int i = 0; i < sg_whole_.X_temp_.size(); i = i + 10)
   {  // Sample points along the trajectory
@@ -233,7 +241,7 @@ int Faster::findIndexH(bool& needToComputeSafePath)
     Eigen::Vector3d tmp = sg_whole_.X_temp_[i].pos;
     pcl::PointXYZ searchPoint(tmp(0), tmp(1), tmp(2));
 
-    if (kdtree_unk_.nearestKSearch(searchPoint, n, pointIdxNKNSearch, pointNKNSquaredDistance) > 0)
+    if (kdtree_unk_.nearestKSearch(searchPoint, n, pointIdxNKNSearch, pointNKNSquaredDistance) > 0) //search for nearest neighbors for search point
     {
       if (sqrt(pointNKNSquaredDistance[0]) < par_.drone_radius)
       {
@@ -317,7 +325,7 @@ void Faster::replan(vec_Vecf<3>& JPS_safe_out, vec_Vecf<3>& JPS_whole_out, vec_E
   state state_local = state_;
   state G;
   G.pos = projectPointToBox(state_local.pos, G_term_.pos, par_.wdx, par_.wdy, par_.wdz);
-  state G_term = G_term_;  // Local copy of the terminal terminal goal
+  state G_term = G_term_;  // Local copy of the terminal  goal
 
   mtx_G.unlock();
   mtx_G_term.unlock();
@@ -384,7 +392,7 @@ void Faster::replan(vec_Vecf<3>& JPS_safe_out, vec_Vecf<3>& JPS_whole_out, vec_E
   createMoreVertexes(JPS_in, par_.dist_max_vertexes);
 
   //////////////////////////////////////////////////////////////////////////
-  ///////////////// Solve with GUROBI Whole trajectory /////////////////////
+  ///////////////// Sol  int indexR = indexH;ve with GUROBI Whole trajectory /////////////////////
   //////////////////////////////////////////////////////////////////////////
 
   if (par_.use_faster == true)
@@ -392,11 +400,11 @@ void Faster::replan(vec_Vecf<3>& JPS_safe_out, vec_Vecf<3>& JPS_whole_out, vec_E
     vec_Vecf<3> JPS_whole = JPS_in;
     deleteVertexes(JPS_whole, par_.max_poly_whole);
     E.pos = JPS_whole[JPS_whole.size() - 1];
-
+    //********************************************************************************************************************************** change fun here
     // Convex Decomp around JPS_whole
     MyTimer cvx_ellip_decomp_t(true);
     jps_manager_.cvxEllipsoidDecomp(JPS_whole, OCCUPIED_SPACE, l_constraints_whole_, poly_whole_out);
-    // std::cout << "poly_whole_out= " << poly_whole_out.size() << std::endl;
+    // std::cout << "poly_whole_out= " << poly_whole_out.size() << reset << std::endl;
 
     // Check if G is inside poly_whole
     bool isGinside_whole = l_constraints_whole_[l_constraints_whole_.size() - 1].inside(G.pos);
@@ -578,7 +586,7 @@ void Faster::replan(vec_Vecf<3>& JPS_safe_out, vec_Vecf<3>& JPS_whole_out, vec_E
                                                                              // the last replan
   mtx_offsets.unlock();
 
-  // Time allocation
+  // Time allocation (fig 7 in the paper)
   double new_init_whole = std::max(sg_whole_.factor_that_worked_ - par_.gamma_whole, 1.0);
   double new_final_whole = sg_whole_.factor_that_worked_ + par_.gammap_whole;
   sg_whole_.setFactorInitialAndFinalAndIncrement(new_init_whole, new_final_whole, par_.increment_whole);
@@ -613,7 +621,7 @@ bool Faster::appendToPlan(int k_end_whole, const std::vector<state>& whole, int 
     std::cout << "plan_size - k_end_whole = " << plan_size - k_end_whole << std::endl;*/
   if ((plan_size - 1 - k_end_whole) < 0)
   {
-    std::cout << bold << red << "Already publised the point A" << reset << std::endl;
+    std::cout << bold << red << "Already published the point A" << reset << std::endl;
     output = false;
   }
   else
@@ -627,14 +635,14 @@ bool Faster::appendToPlan(int k_end_whole, const std::vector<state>& whole, int 
     /*    std::cout << "Erased" << std::endl;
         std::cout << "k_safe = " << k_safe << std::endl;
         std::cout << "whole.size() = " << whole.size() << std::endl;*/
-    for (int i = 0; i <= k_safe; i++)
+    for (int i = 0; i <= k_safe; i++) //append points from A to R
     {
       plan_.push_back(whole[i]);
     }
 
     /*    std::cout << "k_safe = " << k_safe << std::endl;
         std::cout << "whole.size() = " << whole.size() << std::endl;*/
-    for (int i = 0; i < safe.size(); i++)
+    for (int i = 0; i < safe.size(); i++) // append points from R to F
     {
       plan_.push_back(safe[i]);
     }
