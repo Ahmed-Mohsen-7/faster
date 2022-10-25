@@ -77,6 +77,12 @@ void JPS_Manager::setDroneRadius(double drone_radius)
   drone_radius_ = drone_radius;
 }
 
+/////////////////////////////////////////////////////////////////////
+std::vector<vec_E<Polyhedron<3>> > incremental_polys;
+int counter_incre {0};
+////////////////////////////////////////////////////////////////////
+
+
 void JPS_Manager::cvxEllipsoidDecomp(vec_Vecf<3>& path, int type_space, std::vector<LinearConstraint3D>& l_constraints,
                                      vec_E<Polyhedron<3>>& poly_out)
 {
@@ -107,7 +113,16 @@ void JPS_Manager::cvxEllipsoidDecomp(vec_Vecf<3>& path, int type_space, std::vec
   // Convert to inequality constraints Ax < b
   // std::vector<polytope> polytopes;
   auto polys = ellip_decomp_util_.get_polyhedrons();
-
+  //////////////////////////////
+  // takes whole path polyhedrons 
+  if (type_space == OCCUPIED_SPACE){
+    incremental_polys.push_back(polys);
+    std::cout<<std::endl<<"The total incremental polys "<<incremental_polys.size()<<std::endl<<std::endl;
+  }
+  counter_incre+=1;
+  std::cout<<std::endl<<"JPS manager is called for  "<<counter_incre<<" times"<<std::endl<<std::endl;
+  /////////////////////////////////////////
+  
   l_constraints.clear();
 
   for (size_t i = 0; i < path.size() - 1; i++)
