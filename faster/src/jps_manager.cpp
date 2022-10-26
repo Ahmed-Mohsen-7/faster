@@ -78,7 +78,7 @@ void JPS_Manager::setDroneRadius(double drone_radius)
 }
 
 /////////////////////////////////////////////////////////////////////
-std::vector<vec_E<Polyhedron<3>> > incremental_polys;
+std::vector<vec_E<Polyhedron<3>>> incremental_polys;
 int counter_incre {0};
 ////////////////////////////////////////////////////////////////////
 

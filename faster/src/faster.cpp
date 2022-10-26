@@ -7,7 +7,10 @@
  * -------------------------------------------------------------------------- */
 
 #include "faster.hpp"
-
+//%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%
+#include "jps_manager.hpp"
+#include "faster_ros.hpp"
+//%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%
 #include <pcl/kdtree/kdtree.h>
 #include <Eigen/StdVector>
 #include <stdio.h>

@@ -23,6 +23,9 @@
 
 #include <mutex>
 
+//$$$$$$%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%
+extern std::vector<vec_E<Polyhedron<3>>> incremental_polys;
+//%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%
 class JPS_Manager
 {
 public:
