@@ -113,14 +113,15 @@ void JPS_Manager::cvxEllipsoidDecomp(vec_Vecf<3>& path, int type_space, std::vec
   // Convert to inequality constraints Ax < b
   // std::vector<polytope> polytopes;
   auto polys = ellip_decomp_util_.get_polyhedrons();
+
   //////////////////////////////
-  // takes whole path polyhedrons 
+  // take whole path polyhedrons 
   if (type_space == OCCUPIED_SPACE){
     incremental_polys.push_back(polys);
-    std::cout<<std::endl<<"The total incremental polys "<<incremental_polys.size()<<std::endl<<std::endl;
+    //std::cout<<std::endl<<"The total incremental polys "<<incremental_polys.size()<<std::endl<<std::endl;
   }
   counter_incre+=1;
-  std::cout<<std::endl<<"JPS manager is called for  "<<counter_incre<<" times"<<std::endl<<std::endl;
+  //std::cout<<std::endl<<"JPS manager is called for  "<<counter_incre<<" times"<<std::endl<<std::endl;
   /////////////////////////////////////////
   
   l_constraints.clear();

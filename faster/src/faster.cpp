@@ -964,6 +964,7 @@ void Faster::changeDroneStatus(int new_status)
       break;
     case DroneStatus::GOAL_REACHED:
       std::cout << bold << "status_=GOAL_REACHED" << reset;
+      publishPoly(incremental_polys, WHOLE);
       break;
   }
 
